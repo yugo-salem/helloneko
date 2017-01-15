@@ -17,5 +17,7 @@ def main():
                    MAGENTA, NAME, NORMAL]))
 
 
+    print('nekochan + yugo-salem = love <3')
+
 if __name__ == '__main__':
     main()
