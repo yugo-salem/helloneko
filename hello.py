@@ -19,5 +19,7 @@ def main():
 
     print('nekochan + yugo-salem = love <3')
 
+    print('i wanna be cute nekogirl for my boyfriend yug-salem !')
+
 if __name__ == '__main__':
     main()
