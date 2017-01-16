@@ -22,7 +22,7 @@ def main():
                    ' nekochan + yugo-salem = love <3 ',
                    NORMAL]))
 
-    print('i wanna be cute nekogirl for my boyfriend yug-salem !')
+    print('i wanna be cute nekogirl for my boyfriend yugo-salem !')
 
 if __name__ == '__main__':
     main()
