@@ -22,7 +22,9 @@ def main():
                    ' nekochan + yugo-salem = love <3 ',
                    NORMAL]))
 
-    print('i wanna be cute nekogirl for my boyfriend yugo-salem !')
+    print(''.join([LIGHT_MAGENTA, WHITE, BOLD,
+                   'i wanna be cute nekogirl for my boyfriend yugo-salem !',
+                   NORMAL]))
 
 if __name__ == '__main__':
     main()
