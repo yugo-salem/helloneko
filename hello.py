@@ -27,6 +27,7 @@ def main():
                    NORMAL]))
 
     print('test print')
+    print('test print2')
 
 if __name__ == '__main__':
     main()
