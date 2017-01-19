@@ -26,5 +26,7 @@ def main():
                    'i wanna be cute nekogirl for my boyfriend yugo-salem !',
                    NORMAL]))
 
+    print('test print')
+
 if __name__ == '__main__':
     main()
