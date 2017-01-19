@@ -19,7 +19,7 @@ def main():
 
 
     print(''.join([LIGHT_MAGENTA, WHITE, BOLD,
-                   ' nekochan + yugo-salem = love <3 ',
+                   ' nekochan + yugo-salem = love <3  NYA!',
                    NORMAL]))
 
     print(''.join([LIGHT_MAGENTA, WHITE, BOLD,
