@@ -29,5 +29,31 @@ def main():
     print('test print')
     print('test print2')
 
+    bbb='teststring'
+
+    print(bbb[1:][:3])
+
+    nnn=0x1a
+    mmm=4
+    ggg=nnn<<mmm
+    str1="%03X" % ggg
+    print(str1)
+
+    arr=(6,5,4,3,2,1)
+    print(arr[0])
+
+    if mmm==4:
+        print("tada!")
+    else:
+        print("bada!")
+
+    i=0
+    while i<5:
+        print("i=%03d"%i)
+        i=i+1
+
+    for i in range(2,6):
+        print(i)
+
 if __name__ == '__main__':
     main()
