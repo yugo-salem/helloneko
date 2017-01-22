@@ -11,6 +11,11 @@ LIGHT_MAGENTA = '\x1b[105m'
 NORMAL = '\x1b[0m\x1b[39m\x1b[49m'
 NAME = 'nekochan777'
 
+def convtohex(val):
+    tmpval=ord(val)
+    tmpstr="%02X "%tmpval
+    return tmpstr
+
 
 def main():
     print(''.join([BG_DARK, BOLD, WHITE,
@@ -69,8 +74,9 @@ def main():
         tmpstr3=""
         i=0
         while i<buflen:
-            fgh=ord(tmpbuf[i])
-            tmpstr2="%02X "%fgh
+            #fgh=ord(tmpbuf[i])
+            #tmpstr2="%02X "%fgh
+            tmpstr2=convtohex(tmpbuf[i])
             tmpstr3=tmpstr3+tmpstr2
             #print("buf[%d]="%i+tmpstr2)
             i=i+1
