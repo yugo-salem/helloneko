@@ -77,8 +77,8 @@ def main():
         tmpstr4="len=%d  "%buflen+tmpstr3
         #print(tmpstr4)
         tmpf.write(tmpstr4+"\n")
-    tmpf2.close
-    tmpf.close
+    tmpf2.close()
+    tmpf.close()
 
 
 if __name__ == '__main__':
