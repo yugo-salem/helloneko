@@ -17,7 +17,19 @@ def convtohex(val):
     return tmpstr
 
 
+def tstfunc2(val,val2=3,*bbb):
+    print("tstfunc_b")
+    print(val)
+    print(val2)
+    if len(bbb)>0:
+        print(bbb[0])
+    print("tstfunc_e")
+    return
+
 def main():
+    tstfunc2(1)
+    tstfunc2(1,2)
+    tstfunc2(1,2,3)
     print(''.join([BG_DARK, BOLD, WHITE,
                    'Hello', ' ', BLINK,
                    MAGENTA, NAME, NORMAL]))
