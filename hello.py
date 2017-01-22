@@ -55,5 +55,31 @@ def main():
     for i in range(2,6):
         print(i)
 
+
+
+    tmpf=open("aaa","w");
+    tmpf.write("testhex\n")
+
+    tmpf2=open(".gitignore","rb");
+    while True:
+        tmpbuf=tmpf2.read(16);
+        buflen=len(tmpbuf)
+        if buflen==0:
+            break
+        tmpstr3=""
+        i=0
+        while i<buflen:
+            fgh=ord(tmpbuf[i])
+            tmpstr2="%02X "%fgh
+            tmpstr3=tmpstr3+tmpstr2
+            #print("buf[%d]="%i+tmpstr2)
+            i=i+1
+        tmpstr4="len=%d  "%buflen+tmpstr3
+        #print(tmpstr4)
+        tmpf.write(tmpstr4+"\n")
+    tmpf2.close
+    tmpf.close
+
+
 if __name__ == '__main__':
     main()
