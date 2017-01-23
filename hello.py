@@ -26,7 +26,23 @@ def tstfunc2(val,val2=3,*bbb):
     print("tstfunc_e")
     return
 
+
+class mycl:
+    ggg=3
+    def __init__(self):
+        print("init")
+        print(self.ggg)
+    def pr(self,val):
+        print(val)
+        self.bbb=val
+    def prbbb(self):
+        print(self.bbb)
+
+
 def main():
+    gh=mycl()
+    gh.pr("classtest")
+    gh.prbbb()
     tstfunc2(1)
     tstfunc2(1,2)
     tstfunc2(1,2,3)
