@@ -46,6 +46,18 @@ def main():
     tstfunc2(1)
     tstfunc2(1,2)
     tstfunc2(1,2,3)
+    ddd={"one":"odin","two":"dva","three":"tri"}
+    print(ddd["one"]+"+"+ddd["two"]+"="+ddd["three"]);
+    sss={"fff",123}
+    sss.add(5)
+    sss.remove("fff")
+    print(sss);
+    for gj in sss:
+        print(gj)
+    sss2=["fff",123]
+    sss2.append("dfff")
+    print("sss2[1]=",sss2[1])
+    print("sss2=",sss2)
     print(''.join([BG_DARK, BOLD, WHITE,
                    'Hello', ' ', BLINK,
                    MAGENTA, NAME, NORMAL]))
