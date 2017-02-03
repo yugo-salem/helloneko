@@ -2,6 +2,8 @@
 
 # практика
 
+![](https://i.warosu.org/data/g/img/0470/40/1426493409034.png)
+![](https://i.warosu.org/data/g/img/0483/09/1433385401273.png)
 - http://acm.timus.ru/problemset.aspx?space=1&page=1
 - http://code.google.com/codejam/contests.html
 
