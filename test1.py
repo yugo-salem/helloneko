@@ -16,8 +16,14 @@ print(strlen)
 #for i in range(strlen):
 #    str2=str2+str[strlen-1-i]
 
-for le in str[::-1]:
-    str2=str2+le
+#for le in str[::-1]:
+#    str2=str2+le
+
+li1=list(str)
+
+li2=li1[::-1]
+
+str2=''.join(li2)
 
 print(str)
 print(str2)
