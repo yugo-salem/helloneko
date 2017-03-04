@@ -13,8 +13,11 @@ print(strlen)
 #    str2=str2+str[strlen-1-i]
 #    i=i+1
 
-for i in range(strlen):
-    str2=str2+str[strlen-1-i]
+#for i in range(strlen):
+#    str2=str2+str[strlen-1-i]
+
+for le in str[::-1]:
+    str2=str2+le
 
 print(str)
 print(str2)
