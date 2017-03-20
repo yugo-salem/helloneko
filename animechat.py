@@ -17,15 +17,7 @@ import chatdata
 
 
 
-
-class slackbot:
-    token=""
-    username=""
-    teamname=""
-    team_id=""
-    user_id=""
-    userdict=dict()
-    userreversedict=dict()
+class uiclass:
     myscreen=None
     msghistwnd=None
     msgpostwnd=None
@@ -80,8 +72,6 @@ class slackbot:
             self.msgpostwnd.refresh()
 
     def updatemsglog(self):
-        #getmsgfunc=self.getmsg
-        #messages=self.getmsg(self.uichannel,self.msghistcount//3)
         messages=self.getmsgfunc(self.uichannel,self.msghistcount//3)
         self.msghistwnd.clear()
         nmsg=len(messages)
@@ -96,12 +86,19 @@ class slackbot:
         self.msghistwnd.refresh()
 
     def postmsg(self,msg):
-        #postmsgfunc=self.post
-        #self.post(self.uichannel,msg.decode('utf-8'))
         self.postmsgfunc(self.uichannel,msg.decode('utf-8'))
 
 
 
+
+class slackbot:
+    token=""
+    username=""
+    teamname=""
+    team_id=""
+    user_id=""
+    userdict=dict()
+    userreversedict=dict()
 
     def test(self):
         payload={"token"  :self.token}
@@ -113,8 +110,8 @@ class slackbot:
         assert resok==True
         self.username=rjson["user"]
         self.teamname=rjson["team"]
-        self.team_id=rjson["team_id"]
         self.user_id=rjson["user_id"]
+        self.team_id=rjson["team_id"]
 
     def post(self,channel,msg):
         payload={"token"  :self.token,
@@ -161,10 +158,10 @@ class slackbot:
             i=i+1
         return im_id
 
-    def getmsg_print(self,channel):
+    def getmsg_print(self,channel,qnttmsg):
         payload={"token"  :self.token,
                  "channel":channel,
-                 "count":"3"}
+                 "count":qnttmsg}
         reply=requests.get('https://slack.com/api/im.history',params=payload)
         rjson=reply.json()
         #print(rjson)
@@ -227,16 +224,17 @@ def main():
     print("friendid="+friendid)
     friendchannel=sbot.get_im_id(friendid)
     print("friendchannel="+friendchannel)
-    sbot.getmsg_print(friendchannel)
+    sbot.getmsg_print(friendchannel,3)
 
     time.sleep(1)
 
-    sbot.uichannel=friendchannel
-    sbot.cursesinit()
-    sbot.getmsgfunc=sbot.getmsg
-    sbot.postmsgfunc=sbot.post
-    sbot.mainloop()
-    sbot.cursesdone()
+    ui=uiclass()
+    ui.uichannel=friendchannel
+    ui.cursesinit()
+    ui.getmsgfunc=sbot.getmsg
+    ui.postmsgfunc=sbot.post
+    ui.mainloop()
+    ui.cursesdone()
 
     print("end")
 
