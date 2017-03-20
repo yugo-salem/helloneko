@@ -16,6 +16,7 @@ class uiclass:
     getmsgfunc=None
     postmsgfunc=None
     uichannel=""
+    messages=[]
 
     def cursesinit(self):
         self.myscreen=curses.initscr()
@@ -63,15 +64,15 @@ class uiclass:
             self.msgpostwnd.refresh()
 
     def updatemsglog(self):
-        messages=self.getmsgfunc(self.uichannel,self.msghistcount//3)
+        self.messages=self.getmsgfunc(self.uichannel,self.msghistcount//3)
         self.msghistwnd.clear()
-        nmsg=len(messages)
+        nmsg=len(self.messages)
         i=0
         while i<nmsg:
-            msgdatetime=datetime.datetime.fromtimestamp(messages[i]["ts"])
+            msgdatetime=datetime.datetime.fromtimestamp(self.messages[i]["ts"])
             self.msghistwnd.addstr("-----------------\n")
-            self.msghistwnd.addstr(str(messages[i]["user"])+" "+str(msgdatetime)+"\n")
-            self.msghistwnd.addstr(messages[i]["text"].encode('utf-8'))
+            self.msghistwnd.addstr(str(self.messages[i]["user"])+" "+str(msgdatetime)+"\n")
+            self.msghistwnd.addstr(self.messages[i]["text"].encode('utf-8'))
             self.msghistwnd.addstr("\n")
             i=i+1
         self.msghistwnd.refresh()
