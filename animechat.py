@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 # encoding: utf-8
+# pylint: disable=bad-whitespace
+# pylint: disable=missing-docstring
 
-import curses
+import sys
+import os
+import datetime
 import time
 import locale
-import requests
-import datetime
 
-import sys, os
+import curses
+import requests
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import chatdata
 
@@ -25,6 +29,7 @@ class slackbot:
     myscreen=None
     msghistwnd=None
     msgpostwnd=None
+    msghistcount=10
     uichannel=""
 
     def cursesinit(self):
@@ -34,7 +39,8 @@ class slackbot:
         curses.halfdelay(10)
         curses.noecho()
         postwndheight=2
-        self.msghistwnd=curses.newwin(height-postwndheight,width-1,0,0)
+        self.msghistcount=height-postwndheight
+        self.msghistwnd=curses.newwin(self.msghistcount,width-1,0,0)
         self.msghistwnd.scrollok(True)
         self.msgpostwnd=curses.newwin(postwndheight,width-1,height-postwndheight,0)
         self.msgpostwnd.scrollok(True)
@@ -64,6 +70,7 @@ class slackbot:
                 self.postmsg(postbufstr)
                 postbufstr=""
                 key=""
+                self.updatemsglog()
             if not key.startswith("KEY_"):
                 postbufstr=postbufstr+key
             self.msgpostwnd.clear()
@@ -72,9 +79,9 @@ class slackbot:
 
     def test(self):
         payload={"token"  :self.token}
-        r=requests.get('https://slack.com/api/auth.test',params=payload)
-        #r=requests.get("https://slack.com/api/auth.test?token="+self.token)
-        rjson=r.json()
+        reply=requests.get('https://slack.com/api/auth.test',params=payload)
+        #reply=requests.get("https://slack.com/api/auth.test?token="+self.token)
+        rjson=reply.json()
         #print(rjson)
         resok=rjson["ok"]
         assert resok==True
@@ -88,19 +95,19 @@ class slackbot:
                  "channel":channel,
                  "text"   :msg,
                  "as_user":"1"}
-        r=requests.get('https://slack.com/api/chat.postMessage',params=payload)
-        #print(r.url)
-        rjson=r.json()
+        reply=requests.get('https://slack.com/api/chat.postMessage',params=payload)
+        #print(reply.url)
+        rjson=reply.json()
         #print(rjson)
         resok=rjson["ok"]
         assert resok==True
 
-    def getUserId(self):
+    def get_user_id(self):
         self.userdict=dict()
         self.userreversedict=dict()
         payload={"token"  :self.token}
-        r=requests.get('https://slack.com/api/users.list',params=payload)
-        rjson=r.json()
+        reply=requests.get('https://slack.com/api/users.list',params=payload)
+        rjson=reply.json()
         resok=rjson["ok"]
         assert resok==True
         members=rjson["members"]
@@ -111,11 +118,11 @@ class slackbot:
             self.userreversedict[members[i]["id"]]=members[i]["name"]
             i=i+1
 
-    def getImId(self,user_id):
+    def get_im_id(self,user_id):
         im_id=""
         payload={"token"  :self.token}
-        r=requests.get('https://slack.com/api/im.list',params=payload)
-        rjson=r.json()
+        reply=requests.get('https://slack.com/api/im.list',params=payload)
+        rjson=reply.json()
         resok=rjson["ok"]
         assert resok==True
         ims=rjson["ims"]
@@ -132,8 +139,8 @@ class slackbot:
         payload={"token"  :self.token,
                  "channel":channel,
                  "count":"3"}
-        r=requests.get('https://slack.com/api/im.history',params=payload)
-        rjson=r.json()
+        reply=requests.get('https://slack.com/api/im.history',params=payload)
+        rjson=reply.json()
         #print(rjson)
         resok=rjson["ok"]
         assert resok==True
@@ -144,19 +151,20 @@ class slackbot:
             print("-----------------")
             timestamp=msg[i]["ts"]
             timestamp=int(float(timestamp))
-            dt=datetime.datetime.fromtimestamp(timestamp);
+            msgdt=datetime.datetime.fromtimestamp(timestamp)
             print(self.userreversedict[msg[i]["user"]]),
             #print(msg[i]["user"]),
-            print(dt)
+            print(msgdt)
             print(msg[i]["text"])
             i=i+1
 
     def updatemsglog(self):
+        n_msg_req=self.msghistcount//3
         payload={"token"  :self.token,
                  "channel":self.uichannel,
-                 "count":"10"}
-        r=requests.get('https://slack.com/api/im.history',params=payload)
-        rjson=r.json()
+                 "count":n_msg_req}
+        reply=requests.get('https://slack.com/api/im.history',params=payload)
+        rjson=reply.json()
         resok=rjson["ok"]
         assert resok==True
         msg=rjson["messages"]
@@ -168,11 +176,11 @@ class slackbot:
             self.msghistwnd.addstr("-----------------\n")
             timestamp=msg[i]["ts"]
             timestamp=int(float(timestamp))
-            dt=datetime.datetime.fromtimestamp(timestamp);
+            msgdt=datetime.datetime.fromtimestamp(timestamp)
             self.msghistwnd.addstr(self.userreversedict[msg[i]["user"]])
             #print(msg[i]["user"]),
             self.msghistwnd.addstr(" ")
-            self.msghistwnd.addstr(str(dt))
+            self.msghistwnd.addstr(str(msgdt))
             self.msghistwnd.addstr("\n")
             msgstr=msg[i]["text"]
             self.msghistwnd.addstr(msgstr.encode('utf-8'))
@@ -182,7 +190,6 @@ class slackbot:
 
     def postmsg(self,msg):
         self.post(self.uichannel,msg.decode('utf-8'))
-        self.updatemsglog()
 
 
 
@@ -199,10 +206,10 @@ def main():
     print("userid="+sbot.user_id)
     print("teamid="+sbot.team_id)
     #sbot.post("@yugosalem","test123")
-    sbot.getUserId()
+    sbot.get_user_id()
     friendid=sbot.userdict[chatdata.friendname]
     print("friendid="+friendid)
-    friendchannel=sbot.getImId(friendid)
+    friendchannel=sbot.get_im_id(friendid)
     print("friendchannel="+friendchannel)
     sbot.getmsg(friendchannel)
 
