@@ -30,6 +30,8 @@ class slackbot:
     msghistwnd=None
     msgpostwnd=None
     msghistcount=10
+    getmsgfunc=None
+    postmsgfunc=None
     uichannel=""
 
     def cursesinit(self):
@@ -76,6 +78,30 @@ class slackbot:
             self.msgpostwnd.clear()
             self.msgpostwnd.addstr(">"+postbufstr)
             self.msgpostwnd.refresh()
+
+    def updatemsglog(self):
+        #getmsgfunc=self.getmsg
+        #messages=self.getmsg(self.uichannel,self.msghistcount//3)
+        messages=self.getmsgfunc(self.uichannel,self.msghistcount//3)
+        self.msghistwnd.clear()
+        nmsg=len(messages)
+        i=0
+        while i<nmsg:
+            msgdatetime=datetime.datetime.fromtimestamp(messages[i]["ts"])
+            self.msghistwnd.addstr("-----------------\n")
+            self.msghistwnd.addstr(str(messages[i]["user"])+" "+str(msgdatetime)+"\n")
+            self.msghistwnd.addstr(messages[i]["text"].encode('utf-8'))
+            self.msghistwnd.addstr("\n")
+            i=i+1
+        self.msghistwnd.refresh()
+
+    def postmsg(self,msg):
+        #postmsgfunc=self.post
+        #self.post(self.uichannel,msg.decode('utf-8'))
+        self.postmsgfunc(self.uichannel,msg.decode('utf-8'))
+
+
+
 
     def test(self):
         payload={"token"  :self.token}
@@ -135,7 +161,7 @@ class slackbot:
             i=i+1
         return im_id
 
-    def getmsg(self,channel):
+    def getmsg_print(self,channel):
         payload={"token"  :self.token,
                  "channel":channel,
                  "count":"3"}
@@ -158,10 +184,9 @@ class slackbot:
             print(msg[i]["text"])
             i=i+1
 
-    def updatemsglog(self):
-        n_msg_req=self.msghistcount//3
+    def getmsg(self,channel,n_msg_req):
         payload={"token"  :self.token,
-                 "channel":self.uichannel,
+                 "channel":channel,
                  "count":n_msg_req}
         reply=requests.get('https://slack.com/api/im.history',params=payload)
         rjson=reply.json()
@@ -169,27 +194,18 @@ class slackbot:
         assert resok==True
         msg=rjson["messages"]
         nmsg=len(msg)
-        self.msghistwnd.clear()
+        messages=[]
         j=0
         while j<nmsg:
             i=nmsg-1-j
-            self.msghistwnd.addstr("-----------------\n")
-            timestamp=msg[i]["ts"]
-            timestamp=int(float(timestamp))
-            msgdt=datetime.datetime.fromtimestamp(timestamp)
-            self.msghistwnd.addstr(self.userreversedict[msg[i]["user"]])
-            #print(msg[i]["user"]),
-            self.msghistwnd.addstr(" ")
-            self.msghistwnd.addstr(str(msgdt))
-            self.msghistwnd.addstr("\n")
+            timestamp=int(float(msg[i]["ts"]))
+            msgdatetime=datetime.datetime.fromtimestamp(timestamp)
+            username=self.userreversedict[msg[i]["user"]]
             msgstr=msg[i]["text"]
-            self.msghistwnd.addstr(msgstr.encode('utf-8'))
-            self.msghistwnd.addstr("\n")
+            messages.append({"ts":timestamp,"user":username,"text":msgstr})
             j=j+1
-        self.msghistwnd.refresh()
+        return messages
 
-    def postmsg(self,msg):
-        self.post(self.uichannel,msg.decode('utf-8'))
 
 
 
@@ -211,12 +227,14 @@ def main():
     print("friendid="+friendid)
     friendchannel=sbot.get_im_id(friendid)
     print("friendchannel="+friendchannel)
-    sbot.getmsg(friendchannel)
+    sbot.getmsg_print(friendchannel)
 
     time.sleep(1)
 
     sbot.uichannel=friendchannel
     sbot.cursesinit()
+    sbot.getmsgfunc=sbot.getmsg
+    sbot.postmsgfunc=sbot.post
     sbot.mainloop()
     sbot.cursesdone()
 
