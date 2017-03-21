@@ -22,8 +22,9 @@ from uimod import uiclass
 from slackmod import slackclass
 
 
-
-globalui=None
+exitflag=False
+messages=[]
+msgforpost=None
 
 
 def hello():
@@ -31,10 +32,9 @@ def hello():
 
 
 def animechat():
+    global messages
     curdt=datetime.datetime.now()
-    tmpstr=""#"Hello World! "+str(curdt)
-    if globalui:
-        messages=globalui.messages
+    tmpstr=""
 
     tmpstr=tmpstr+"<html>\n"
 
@@ -73,8 +73,10 @@ def animechat():
 
 
 def htmlpost():
+    global msgforpost
+    msgforpost=request.args["msg"]
     print(request.args)
-    print(request.args["msg"])
+    print(msgforpost)
     #return redirect(request.referrer)
     return redirect(url_for("animechat"))
     #return "posted"
@@ -82,6 +84,8 @@ def htmlpost():
 
 
 def shutdown():
+    global exitflag
+    exitflag=True
     func=request.environ.get('werkzeug.server.shutdown')
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
@@ -123,17 +127,25 @@ def main():
     print("friendchannel="+friendchannel)
     sbot.getmsg_print(friendchannel,3)
 
-    time.sleep(1)
 
-    ui=uiclass()
-    global globalui
-    globalui=ui
-    ui.uichannel=friendchannel
-    ui.cursesinit()
-    ui.getmsgfunc=sbot.getmsg
-    ui.postmsgfunc=sbot.post
-    ui.mainloop()
-    ui.cursesdone()
+    global messages
+    global msgforpost
+    while not exitflag:
+        print("update")
+        if msgforpost:
+            sbot.post(friendchannel,msgforpost)
+            msgforpost=None
+        messages=sbot.getmsg(friendchannel,30)
+        time.sleep(3);
+
+    #time.sleep(1)
+    #ui=uiclass()
+    #ui.uichannel=friendchannel
+    #ui.cursesinit()
+    #ui.getmsgfunc=sbot.getmsg
+    #ui.postmsgfunc=sbot.post
+    #ui.mainloop()
+    #ui.cursesdone()
 
     print("end")
 
