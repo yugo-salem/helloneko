@@ -3,9 +3,11 @@
 # pylint: disable=bad-whitespace
 # pylint: disable=missing-docstring
 
+from __future__ import unicode_literals
 import sys
 import os
-import datetime
+# import datetime
+from datetime import datetime
 import time
 import locale
 import threading
@@ -31,45 +33,46 @@ def hello():
     return redirect(url_for("animechat"))
 
 
+INDEX_TEMPLATE = """
+    <html>
+    <head>
+        <title>animechat</title>
+        <meta content="text/html;charset=UTF-8">
+        <meta http-equiv="refresh" content="5">
+    </head>
+    <body>
+        {messages}
+        <form action="/postmsg">
+            message:<br>
+            <input type="text" name="username" value="">
+            <br>
+            <textarea rows="5" cols="50" name="msg"></textarea>
+            <br>
+            <input type="submit" value="Post">
+        </form>
+    </body>
+    </html>
+"""
+
+MESSAGE_TEMPLATE = """
+    <p>
+        <i>{username} {datetime}</i>
+        <b>{text}</b>
+    </p>
+"""
+
+
 def animechat():
     global messages
-    curdt=datetime.datetime.now()
-    tmpstr=""
 
-    tmpstr=tmpstr+"<html>\n"
+    messages_template = ''.join([
+        MESSAGE_TEMPLATE.format(datetime=datetime.fromtimestamp(message['ts']),
+                                text=message['text'],
+                                username=message['user'])
+        for message in messages
+    ])
 
-    tmpstr=tmpstr+"<head>\n"
-    tmpstr=tmpstr+"<title>animechat</title>\n"
-    tmpstr=tmpstr+'<meta content="text/html;charset=UTF-8">\n'
-    tmpstr=tmpstr+'<meta http-equiv="refresh" content="5">\n'
-    tmpstr=tmpstr+"</head>\n"
-
-    tmpstr=tmpstr+"<body>\n"
-    nmsg=len(messages)
-    i=0
-    while i<nmsg:
-        msgdatetime=datetime.datetime.fromtimestamp(messages[i]["ts"])
-        tmpstr=tmpstr+"<p>\n"
-        tmpstr=tmpstr+"<i>"+str(messages[i]["user"])+" "+str(msgdatetime)+"</i><br>\n"
-        tmpstr=tmpstr+"<b>\n"
-        tmpstr=tmpstr+messages[i]["text"].encode('utf-8')
-        tmpstr=tmpstr+"</b><br>\n"
-        tmpstr=tmpstr+"</p>\n"
-        i=i+1
-
-    tmpstr=tmpstr+'<form action="/postmsg">\n'
-    tmpstr=tmpstr+'message:<br>\n'
-    tmpstr=tmpstr+'<input type="text" name="username" value="">\n'
-    tmpstr=tmpstr+'<br>\n'
-    tmpstr=tmpstr+'<textarea rows="5" cols="50" name="msg"></textarea>\n'
-    tmpstr=tmpstr+'<br>\n'
-    tmpstr=tmpstr+'<input type="submit" value="Post">\n'
-    tmpstr=tmpstr+'</form>\n'
-
-    tmpstr=tmpstr+"</body>\n"
-    tmpstr=tmpstr+"</html>\n"
-
-    return tmpstr
+    return INDEX_TEMPLATE.format(messages=messages_template)
 
 
 def htmlpost():
