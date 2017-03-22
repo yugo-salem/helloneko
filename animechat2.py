@@ -12,9 +12,11 @@ import locale
 from multiprocessing import Process, Manager
 
 from flask import Flask, request, redirect, url_for
+from flask.templating import render_template_string
 
 # from uimod import uiclass
 from slackmod import slackclass
+import animechat_templates
 try:
     sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
     import chatdata
@@ -38,91 +40,52 @@ def hello():
     return redirect(url_for("animechat"))
 
 
-SCRIPT = """
-    $(function () {
-        (function refreshMessages () {
-            $.ajax({
-                url: '/messages',
-                success: function (content) {
-                    $('#messages').html(content);
-                }
-            });
-            setTimeout(refreshMessages, 1000);
-        })();
-    });
-"""
-
-INDEX_TEMPLATE = """
-    <html>
-    <head>
-        <title>animechat</title>
-        <meta content="text/html;charset=UTF-8">
-        <!--<meta http-equiv="refresh" content="5">-->
-    </head>
-    <body>
-        <div id="messages">
-            {messages}
-        </div>
-        <form action="/postmsg">
-            message:<br>
-            <input type="text" name="username" value="">
-            <br>
-            <textarea rows="5" cols="50" name="msg"></textarea>
-            <br>
-            <input type="submit" value="Post">
-        </form>
-        <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-        <script>{script}</script>
-    </body>
-    </html>
-"""
-
-MESSAGE_TEMPLATE = """
-    <p>
-        <i>{username} {datetime}</i>
-        <b>{text}</b>
-    </p>
-"""
+def format_message(shared_state):
+    return ''.join([
+        render_template_string(animechat_templates.MESSAGE_TEMPLATE,
+                               datetime=datetime.fromtimestamp(message['ts']),
+                               text=message['text'],
+                               username=message['user'])
+        for message in shared_state.messages
+    ])
 
 
 def animechat(shared_state):
     def handler():
-        messages_template = ''.join([
-            MESSAGE_TEMPLATE.format(datetime=datetime.fromtimestamp(message['ts']),
-                                    text=message['text'],
-                                    username=message['user'])
-            for message in shared_state.messages
-        ])
+        messages_template = format_message(shared_state)
 
-        return INDEX_TEMPLATE.format(messages=messages_template,
-                                     script=SCRIPT)
+        template = {
+            False: animechat_templates.NON_AJAX_TEMPLATE,
+            True: animechat_templates.AJAX_TEMPLATE,
+        }['ajax' in request.args]
+
+        return render_template_string(template, messages=messages_template)
 
     return handler
 
 
 def messages(shared_state):
     def handler():
-        messages_template = ''.join([
-            MESSAGE_TEMPLATE.format(datetime=datetime.fromtimestamp(message['ts']),
-                                    text=message['text'],
-                                    username=message['user'])
-            for message in shared_state.messages
-        ])
+        messages = format_message(shared_state)
+        if request.is_xhr:
+            return messages
 
-        return messages_template
+        return render_template_string(
+            animechat_templates.MESSAGES_IFRAME_TEMPLATE,
+            messages=messages,
+        )
 
     return handler
 
 
 def htmlpost(shared_state, post_queue):
     def handler():
-        message = request.args['msg']
-        post_queue.append(message)
-        pprint({
-            'args': request.args,
-            'message': message,
-        })
-        return redirect(url_for("animechat"))
+        if request.method == 'POST':
+            message = request.form['msg']
+            post_queue.append(message)
+        if 'redirect' in request.args:
+            return redirect(request.environ['HTTP_REFERER'])
+        return render_template_string(animechat_templates.POST_TEMPLATE)
 
     return handler
 
@@ -141,7 +104,8 @@ def runner(shared_state, post_queue):
                      endpoint='messages')
     app.add_url_rule('/postmsg',
                      view_func=htmlpost(shared_state, post_queue),
-                     endpoint='postmsg')
+                     endpoint='postmsg',
+                     methods=('GET', 'POST'))
 
     app.run()
 
