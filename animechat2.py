@@ -31,7 +31,8 @@ def hello():
     return redirect(url_for("animechat"))
 
 
-def animechat():
+
+def msgs():
     global messages
 
     if exitflag:
@@ -39,7 +40,6 @@ def animechat():
         if func:
             func()
 
-    curdt=datetime.datetime.now()
     tmpstr=""
 
     tmpstr=tmpstr+"<html>\n"
@@ -51,17 +51,44 @@ def animechat():
     tmpstr=tmpstr+"</head>\n"
 
     tmpstr=tmpstr+"<body>\n"
+
     nmsg=len(messages)
     i=0
     while i<nmsg:
         msgdatetime=datetime.datetime.fromtimestamp(messages[i]["ts"])
         tmpstr=tmpstr+"<p>\n"
         tmpstr=tmpstr+"<i>"+str(messages[i]["user"])+" "+str(msgdatetime)+"</i><br>\n"
-        tmpstr=tmpstr+"<b>\n"
-        tmpstr=tmpstr+messages[i]["text"].encode('utf-8')
-        tmpstr=tmpstr+"</b><br>\n"
+        tmpstr=tmpstr+'<b>\n'
+        msgstr=messages[i]["text"]
+        msgstr=msgstr.replace("<","&lt;")
+        msgstr=msgstr.replace(">","&gt;")
+        tmpstr=tmpstr+msgstr.encode('utf-8')
+        #tmpstr=tmpstr+messages[i]["text"].encode('utf-8')
+        tmpstr=tmpstr+'</b><br>\n'
         tmpstr=tmpstr+"</p>\n"
         i=i+1
+
+    tmpstr=tmpstr+"</body>\n"
+    tmpstr=tmpstr+"</html>\n"
+
+    return tmpstr
+
+
+def animechat():
+    global messages
+
+    tmpstr=""
+
+    tmpstr=tmpstr+"<html>\n"
+
+    tmpstr=tmpstr+"<head>\n"
+    tmpstr=tmpstr+"<title>animechat</title>\n"
+    tmpstr=tmpstr+'<meta content="text/html;charset=UTF-8">\n'
+    tmpstr=tmpstr+"</head>\n"
+
+    tmpstr=tmpstr+"<body>\n"
+
+    tmpstr=tmpstr+'<iframe src="/msgs" width=600 height=300></iframe>\n'
 
     tmpstr=tmpstr+'<form action="/postmsg">\n'
     tmpstr=tmpstr+'message:<br>\n'
@@ -84,8 +111,9 @@ def htmlpost():
     print(request.args)
     print(msgforpost)
     #return redirect(request.referrer)
-    return redirect(url_for("animechat"))
+    #return redirect(url_for("animechat"))
     #return "posted"
+    return redirect("/animechat")
 
 
 
@@ -101,6 +129,7 @@ def main():
     app=Flask("nekochat")
     app.add_url_rule('/', view_func=hello)
     app.add_url_rule('/animechat', view_func=animechat)
+    app.add_url_rule('/msgs', view_func=msgs)
     app.add_url_rule('/postmsg', view_func=htmlpost)
     t=threading.Thread(target=app.run)
     t.start()
