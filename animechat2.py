@@ -33,6 +33,12 @@ def hello():
 
 def animechat():
     global messages
+
+    if exitflag:
+        func=request.environ.get('werkzeug.server.shutdown')
+        if func:
+            func()
+
     curdt=datetime.datetime.now()
     tmpstr=""
 
@@ -83,17 +89,6 @@ def htmlpost():
 
 
 
-def shutdown():
-    global exitflag
-    exitflag=True
-    func=request.environ.get('werkzeug.server.shutdown')
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
-    return 'Server shutting down...'
-
-
-
 
 
 
@@ -107,7 +102,6 @@ def main():
     app.add_url_rule('/', view_func=hello)
     app.add_url_rule('/animechat', view_func=animechat)
     app.add_url_rule('/postmsg', view_func=htmlpost)
-    app.add_url_rule('/shutdown', view_func=shutdown)
     t=threading.Thread(target=app.run)
     t.start()
 
@@ -128,15 +122,22 @@ def main():
     sbot.getmsg_print(friendchannel,3)
 
 
+    global exitflag
     global messages
     global msgforpost
-    while not exitflag:
-        print("update")
-        if msgforpost:
-            sbot.post(friendchannel,msgforpost)
-            msgforpost=None
-        messages=sbot.getmsg(friendchannel,30)
-        time.sleep(3);
+    try:
+        while not exitflag:
+            print("update")
+            if msgforpost:
+                sbot.post(friendchannel,msgforpost)
+                msgforpost=None
+            messages=sbot.getmsg(friendchannel,30)
+            time.sleep(3);
+    except KeyboardInterrupt:
+        exitflag=True
+
+
+
 
     #time.sleep(1)
     #ui=uiclass()
