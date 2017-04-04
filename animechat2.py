@@ -55,6 +55,27 @@ MESSAGES_IFRAME_TEMPLATE = """
     </html>
 """
 
+ANIMECHAT_TEMPLATE = """
+    <html>
+    <head>
+        <title>animechat</title>
+        <meta content="text/html;charset=UTF-8">
+    </head>
+    <body>
+        <iframe src="/msgs" width=600 height=300></iframe>
+        <form action="/postmsg">
+            message:<br>
+            <input type="text" name="username" value="">
+            <br>
+            <textarea rows="5" cols="50" name="msg"></textarea>
+            <br>
+            <input type="submit" value="Post">
+        </form>
+    </body>
+    </html>
+"""
+
+
 
 
 
@@ -75,58 +96,7 @@ def msgs():
 
 def animechat():
     global messages
-
-
-
-ANIMECHAT_TEMPLATE = """
-    <html>
-    <head>
-        <title>animechat</title>
-        <meta content="text/html;charset=UTF-8">
-    </head>
-    <body>
-        <iframe src="/msgs" width=600 height=300></iframe>
-{#
-        <form action="{{ url_for('postmsg') }}" method="POST">
-#}
-        <form action="/postmsg">
-            message:<br>
-            <input type="text" name="username" value="">
-            <br>
-            <textarea rows="5" cols="50" name="msg"></textarea>
-            <br>
-            <input type="submit" value="Post">
-        </form>
-    </body>
-    </html>
-"""
-
-    tmpstr=""
-
-    tmpstr=tmpstr+"<html>\n"
-
-    tmpstr=tmpstr+"<head>\n"
-    tmpstr=tmpstr+"<title>animechat</title>\n"
-    tmpstr=tmpstr+'<meta content="text/html;charset=UTF-8">\n'
-    tmpstr=tmpstr+"</head>\n"
-
-    tmpstr=tmpstr+"<body>\n"
-
-    tmpstr=tmpstr+'<iframe src="/msgs" width=600 height=300></iframe>\n'
-
-    tmpstr=tmpstr+'<form action="/postmsg">\n'
-    tmpstr=tmpstr+'message:<br>\n'
-    tmpstr=tmpstr+'<input type="text" name="username" value="">\n'
-    tmpstr=tmpstr+'<br>\n'
-    tmpstr=tmpstr+'<textarea rows="5" cols="50" name="msg"></textarea>\n'
-    tmpstr=tmpstr+'<br>\n'
-    tmpstr=tmpstr+'<input type="submit" value="Post">\n'
-    tmpstr=tmpstr+'</form>\n'
-
-    tmpstr=tmpstr+"</body>\n"
-    tmpstr=tmpstr+"</html>\n"
-
-    return tmpstr
+    return render_template_string(ANIMECHAT_TEMPLATE)
 
 
 def htmlpost():
