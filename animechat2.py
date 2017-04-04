@@ -5,7 +5,7 @@
 
 import sys
 import os
-import datetime
+from datetime import datetime
 import time
 import locale
 import threading
@@ -14,6 +14,7 @@ import curses
 import requests
 
 from flask import Flask, request, redirect, url_for
+from flask.templating import render_template_string
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import chatdata
@@ -32,6 +33,44 @@ def hello():
 
 
 
+MESSAGES_IFRAME_TEMPLATE = """
+    <html>
+    <head>
+        <title></title>
+        <meta content="text/html;charset=UTF-8">
+        <meta http-equiv="refresh" content="1">
+    </head>
+    <body>
+        {{ messages|safe }}
+    </body>
+    </html>
+"""
+
+        tmpstr=tmpstr+render_template_string(MESSAGE_TEMPLATE,
+                               username=messages[i]["user"],
+                               datetime=datetime.fromtimestamp(messages[i]["ts"]),
+                               text=msgstr
+                               )
+
+MESSAGE_TEMPLATE = """
+    <p>
+        <i>{{ message["user"] }} {{ datetime.fromtimestamp(message["ts"]) }}</i>
+        <br>
+        <b>{{ message["text"] }}</b>
+    </p>
+"""
+
+
+#MESSAGE_TEMPLATE = """
+#    <p>
+#        <i>{{ username }} {{ datetime }}</i>
+#        <br>
+#        <b>{{ text }}</b>
+#    </p>
+#"""
+
+
+
 def msgs():
     global messages
 
@@ -39,6 +78,9 @@ def msgs():
         func=request.environ.get('werkzeug.server.shutdown')
         if func:
             func()
+
+
+
 
     tmpstr=""
 
@@ -55,17 +97,26 @@ def msgs():
     nmsg=len(messages)
     i=0
     while i<nmsg:
-        msgdatetime=datetime.datetime.fromtimestamp(messages[i]["ts"])
-        tmpstr=tmpstr+"<p>\n"
-        tmpstr=tmpstr+"<i>"+str(messages[i]["user"])+" "+str(msgdatetime)+"</i><br>\n"
-        tmpstr=tmpstr+'<b>\n'
-        msgstr=messages[i]["text"]
-        msgstr=msgstr.replace("<","&lt;")
-        msgstr=msgstr.replace(">","&gt;")
-        tmpstr=tmpstr+msgstr.encode('utf-8')
-        #tmpstr=tmpstr+messages[i]["text"].encode('utf-8')
-        tmpstr=tmpstr+'</b><br>\n'
-        tmpstr=tmpstr+"</p>\n"
+#        msgdatetime=datetime.fromtimestamp(messages[i]["ts"])
+#        tmpstr=tmpstr+"<p>\n"
+#        tmpstr=tmpstr+"<i>"+str(messages[i]["user"])+" "+str(msgdatetime)+"</i><br>\n"
+#        tmpstr=tmpstr+'<b>\n'
+#        msgstr=messages[i]["text"]
+#        msgstr=msgstr.replace("<","&lt;")
+#        msgstr=msgstr.replace(">","&gt;")
+#        tmpstr=tmpstr+msgstr.encode('utf-8')
+#        #tmpstr=tmpstr+messages[i]["text"].encode('utf-8')
+#        tmpstr=tmpstr+'</b><br>\n'
+#        tmpstr=tmpstr+"</p>\n"
+
+
+#        tmpstr=tmpstr+render_template_string(MESSAGE_TEMPLATE,
+#                               username=messages[i]["user"],
+#                               datetime=datetime.fromtimestamp(messages[i]["ts"]),
+#                               text=msgstr
+#                               )
+
+        tmpstr=tmpstr+render_template_string(MESSAGE_TEMPLATE,message=messages[i])
         i=i+1
 
     tmpstr=tmpstr+"</body>\n"
