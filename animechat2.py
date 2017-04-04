@@ -33,41 +33,28 @@ def hello():
 
 
 
+
+
+
 MESSAGES_IFRAME_TEMPLATE = """
     <html>
     <head>
-        <title></title>
+        <title>animechat</title>
         <meta content="text/html;charset=UTF-8">
-        <meta http-equiv="refresh" content="1">
+        <meta http-equiv="refresh" content="5">
     </head>
     <body>
-        {{ messages|safe }}
+        {% for message in messages %}
+            <p>
+                <i>{{ message["user"] }} {{ message["ts_datetime"] }}</i>
+                <br>
+                <b>{{ message["text"] }}</b>
+            </p>
+        {% endfor %}
     </body>
     </html>
 """
 
-        tmpstr=tmpstr+render_template_string(MESSAGE_TEMPLATE,
-                               username=messages[i]["user"],
-                               datetime=datetime.fromtimestamp(messages[i]["ts"]),
-                               text=msgstr
-                               )
-
-MESSAGE_TEMPLATE = """
-    <p>
-        <i>{{ message["user"] }} {{ datetime.fromtimestamp(message["ts"]) }}</i>
-        <br>
-        <b>{{ message["text"] }}</b>
-    </p>
-"""
-
-
-#MESSAGE_TEMPLATE = """
-#    <p>
-#        <i>{{ username }} {{ datetime }}</i>
-#        <br>
-#        <b>{{ text }}</b>
-#    </p>
-#"""
 
 
 
@@ -79,54 +66,40 @@ def msgs():
         if func:
             func()
 
+    for message in messages:
+        message["ts_datetime"]=datetime.fromtimestamp(message["ts"])
 
+    return render_template_string(MESSAGES_IFRAME_TEMPLATE,messages=messages)
 
-
-    tmpstr=""
-
-    tmpstr=tmpstr+"<html>\n"
-
-    tmpstr=tmpstr+"<head>\n"
-    tmpstr=tmpstr+"<title>animechat</title>\n"
-    tmpstr=tmpstr+'<meta content="text/html;charset=UTF-8">\n'
-    tmpstr=tmpstr+'<meta http-equiv="refresh" content="5">\n'
-    tmpstr=tmpstr+"</head>\n"
-
-    tmpstr=tmpstr+"<body>\n"
-
-    nmsg=len(messages)
-    i=0
-    while i<nmsg:
-#        msgdatetime=datetime.fromtimestamp(messages[i]["ts"])
-#        tmpstr=tmpstr+"<p>\n"
-#        tmpstr=tmpstr+"<i>"+str(messages[i]["user"])+" "+str(msgdatetime)+"</i><br>\n"
-#        tmpstr=tmpstr+'<b>\n'
-#        msgstr=messages[i]["text"]
-#        msgstr=msgstr.replace("<","&lt;")
-#        msgstr=msgstr.replace(">","&gt;")
-#        tmpstr=tmpstr+msgstr.encode('utf-8')
-#        #tmpstr=tmpstr+messages[i]["text"].encode('utf-8')
-#        tmpstr=tmpstr+'</b><br>\n'
-#        tmpstr=tmpstr+"</p>\n"
-
-
-#        tmpstr=tmpstr+render_template_string(MESSAGE_TEMPLATE,
-#                               username=messages[i]["user"],
-#                               datetime=datetime.fromtimestamp(messages[i]["ts"]),
-#                               text=msgstr
-#                               )
-
-        tmpstr=tmpstr+render_template_string(MESSAGE_TEMPLATE,message=messages[i])
-        i=i+1
-
-    tmpstr=tmpstr+"</body>\n"
-    tmpstr=tmpstr+"</html>\n"
-
-    return tmpstr
 
 
 def animechat():
     global messages
+
+
+
+ANIMECHAT_TEMPLATE = """
+    <html>
+    <head>
+        <title>animechat</title>
+        <meta content="text/html;charset=UTF-8">
+    </head>
+    <body>
+        <iframe src="/msgs" width=600 height=300></iframe>
+{#
+        <form action="{{ url_for('postmsg') }}" method="POST">
+#}
+        <form action="/postmsg">
+            message:<br>
+            <input type="text" name="username" value="">
+            <br>
+            <textarea rows="5" cols="50" name="msg"></textarea>
+            <br>
+            <input type="submit" value="Post">
+        </form>
+    </body>
+    </html>
+"""
 
     tmpstr=""
 
