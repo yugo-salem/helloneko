@@ -16,6 +16,8 @@ import requests
 from flask import Flask, request, redirect, url_for
 from flask.templating import render_template_string
 
+import animechat_templates
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import chatdata
 
@@ -33,52 +35,6 @@ def hello():
 
 
 
-
-
-
-MESSAGES_IFRAME_TEMPLATE = """
-    <html>
-    <head>
-        <title>animechat</title>
-        <meta content="text/html;charset=UTF-8">
-        <meta http-equiv="refresh" content="5">
-    </head>
-    <body>
-        {% for message in messages %}
-            <p>
-                <i>{{ message["user"] }} {{ message["ts_datetime"] }}</i>
-                <br>
-                <b>{{ message["text"] }}</b>
-            </p>
-        {% endfor %}
-    </body>
-    </html>
-"""
-
-ANIMECHAT_TEMPLATE = """
-    <html>
-    <head>
-        <title>animechat</title>
-        <meta content="text/html;charset=UTF-8">
-    </head>
-    <body>
-        <iframe src="/msgs" width=600 height=300></iframe>
-        <form action="/postmsg">
-            message:<br>
-            <input type="text" name="username" value="">
-            <br>
-            <textarea rows="5" cols="50" name="msg"></textarea>
-            <br>
-            <input type="submit" value="Post">
-        </form>
-    </body>
-    </html>
-"""
-
-
-
-
-
 def msgs():
     global messages
 
@@ -90,13 +46,13 @@ def msgs():
     for message in messages:
         message["ts_datetime"]=datetime.fromtimestamp(message["ts"])
 
-    return render_template_string(MESSAGES_IFRAME_TEMPLATE,messages=messages)
+    return render_template_string(animechat_templates.MESSAGES_IFRAME_TEMPLATE,messages=messages)
 
 
 
 def animechat():
     global messages
-    return render_template_string(ANIMECHAT_TEMPLATE)
+    return render_template_string(animechat_templates.ANIMECHAT_TEMPLATE)
 
 
 def htmlpost():
